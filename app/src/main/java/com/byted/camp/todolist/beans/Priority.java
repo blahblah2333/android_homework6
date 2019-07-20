@@ -8,8 +8,8 @@ import android.graphics.Color;
  * @author xuyingyi@bytedance.com (Yingyi Xu)
  */
 public enum Priority {
-    High(2, Color.RED),
-    Medium(1, Color.GREEN),
+    High(2, Color.rgb(255, 99, 71)),
+    Medium(1, Color.rgb(78, 238, 148)),
     Low(0, Color.WHITE);
 
     public final int intValue;

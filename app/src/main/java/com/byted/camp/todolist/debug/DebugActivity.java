@@ -1,20 +1,32 @@
 package com.byted.camp.todolist.debug;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byted.camp.todolist.R;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,6 +34,7 @@ import java.util.Map;
 public class DebugActivity extends AppCompatActivity {
 
     private static int REQUEST_CODE_STORAGE_PERMISSION = 1001;
+    private static String content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +71,37 @@ public class DebugActivity extends AppCompatActivity {
                         REQUEST_CODE_STORAGE_PERMISSION);
             }
         });
+
+        final Button fileBtn = findViewById(R.id.btn_write_to_files);
+        fileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                readInput();
+                //fileText.setText(readFile());
+            }
+        });
+
+        final Button showBtn = findViewById(R.id.btn_show_file);
+        final TextView fileText = findViewById(R.id.text_files);
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AsyncTask<Object, Integer, String>() {
+                    @Override
+                    protected String doInBackground(Object... objects) {
+                        return showFile();
+                    }
+
+                    @Override
+                    protected void onPostExecute(String s) {
+                        super.onPostExecute(s);
+                        fileText.setText(s);
+                    }
+                }.execute();
+//              fileText.setText(showFile());
+            }
+        });
+
     }
 
     @Override
@@ -116,5 +160,125 @@ public class DebugActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+
+    private void readInput() {
+        View dialogView=View.inflate(this,R.layout.input_file_content,null);
+
+        final EditText editText=(EditText)dialogView.findViewById(R.id.edit_input_content);
+
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle("Content");
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                content =editText.getText().toString();
+                if(content.equals("")){
+                    Toast.makeText(DebugActivity.this,"Content cannot be null!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    writeFile();
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                content="";
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alertDialog= builder.create();
+        alertDialog.setView(dialogView);
+        alertDialog.show();
+    }
+
+    private void writeFile(){
+        File s = getFilesDir();
+        String filePath = s + "/test.txt";
+        File file = new File(filePath);
+//        try{
+//            if(!f.createNewFile()){
+//                Log.d("debug","file exists");
+//                Log.d("debug","1"+content);
+//            }
+//        }catch (IOException e){
+//            e.printStackTrace();
+//        }
+        FileWriter fileWriter=null;
+        BufferedWriter bufferedWriter=null;
+
+        try {
+            //fileWriter = new FileWriter(f,true);
+            fileWriter = new FileWriter(file);
+            bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(content);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(bufferedWriter != null) {
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(fileWriter != null){
+                try {
+                    fileWriter.close();
+                    Toast.makeText(this, "Successfull", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private String showFile(){
+        File s = getFilesDir();
+        String file = s + "/test.txt";
+        File f = new File(file);
+
+        try {
+            if(!f.createNewFile())
+                Log.d("debug", "onClick: file exists"  );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileReader fileReader = null;
+        BufferedReader bufferedReader = null;
+
+        String line, text = "";
+        try {
+            fileReader = new FileReader(f);
+            bufferedReader = new BufferedReader(fileReader);
+            while((line = bufferedReader.readLine()) != null)
+                text += (line + "\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return text;
     }
 }

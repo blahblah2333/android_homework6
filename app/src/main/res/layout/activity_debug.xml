@@ -23,17 +23,37 @@
             <TextView
                 android:id="@+id/text_path"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="absolute path"/>
 
             <Button
                 android:id="@+id/btn_request_permission"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_marginTop="10dp"
                 android:text="@string/request_storage_permission" />
+
+            <Button
+                android:id="@+id/btn_write_to_files"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Write to Files"/>
+
+            <Button
+                android:id="@+id/btn_show_file"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Show File"/>
+
+            <TextView
+                android:id="@+id/text_files"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Write something here."/>
 
         </LinearLayout>
 
     </ScrollView>
 
 </android.support.constraint.ConstraintLayout>
+
+    <!--android:layout_marginTop="10dp"-->
